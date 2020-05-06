@@ -62,6 +62,7 @@ static int __init user_gpios_init(void)
 module_init(user_gpios_init);
 
 MODULE_AUTHOR("Mikko Salomäki <ms@datarespons.se>");
+MODULE_AUTHOR("Hans Christian Lonstad <hcl@datarespons.no>");
 MODULE_DESCRIPTION("user-gpios autoexporter");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("user-gpios");
