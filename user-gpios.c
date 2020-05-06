@@ -32,7 +32,7 @@ static int __init user_gpios_init(void)
 			gpio_nr = of_get_gpio_flags(it, 0, &of_flags);
 
 			if (!gpio_is_valid(gpio_nr)) {
-				pr_err("%s: Could not get gpio for %s\n", __func__, of_node_full_name(it));
+				pr_err("%s: Could not get gpio for %s [%d]\n", __func__, of_node_full_name(it), gpio_nr);
 				continue;
 			}
 			val = 0;
