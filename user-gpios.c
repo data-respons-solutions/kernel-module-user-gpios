@@ -35,23 +35,36 @@ static int __init user_gpios_init(void)
 				pr_err("%s: Could not get gpio for %s [%d]\n", __func__, of_node_full_name(it), gpio_nr);
 				continue;
 			}
-			val = 0;
-			if (of_property_read_u32(it, "value", &val) == 0)	{
-				flags = val ? GPIOF_OUT_INIT_HIGH : GPIOF_OUT_INIT_LOW;
-			}
-			else {
-				flags = GPIOF_DIR_IN;
+
+			flags = GPIOF_EXPORT_DIR_CHANGEABLE;
+
+			int is_active_low = 0;
+			if (of_flags & OF_GPIO_ACTIVE_LOW) {
+				is_active_low = 1;
+				flags |= GPIOF_ACTIVE_LOW;
 			}
 
-			flags |= GPIOF_EXPORT_DIR_CHANGEABLE;
+			val = 0;
+			if (of_property_read_u32(it, "value", &val) == 0)	{
+				if (is_active_low) {
+					flags |= val ? GPIOF_OUT_INIT_LOW : GPIOF_OUT_INIT_HIGH;
+				}
+				else {
+					flags |= val ? GPIOF_OUT_INIT_HIGH : GPIOF_OUT_INIT_LOW;
+				}
+
+			}
+			else {
+				flags |= GPIOF_DIR_IN;
+			}
 
 			ret = gpio_request_one(gpio_nr, flags, it->name);
 			if (ret < 0) {
 				pr_err("%s: Could not request gpio %d\n", __func__, gpio_nr);
 				continue;
 			}
-			pr_info("%s: Setting up gpio %s [%d], init=%d\n", __func__,
-					of_node_full_name(it), gpio_nr, val);
+			pr_info("%s: Setting up gpio %s [%d], active=%s, value=%d\n", __func__,
+					of_node_full_name(it), gpio_nr, is_active_low ? "low" : "high", val);
 		}
 		of_node_put(user_gpios);
 	}
