@@ -28,6 +28,16 @@ static int __init user_gpios_init(void)
 	user_gpios = of_find_node_by_name(NULL, "user-gpios");
 	if (user_gpios) {	/* Iterate nodes */
 		it = NULL;
+		// Test whether all nodes are ready, if not ask to try again later
+		while ((it = of_get_next_available_child(user_gpios, it))) {
+			gpio_nr = of_get_gpio_flags(it, 0, &of_flags);
+			if (!gpio_is_valid(gpio_nr)) {
+				pr_warn("%s: gpio %s [%d] not ready: defer driver init\n", __func__, of_node_full_name(it), gpio_nr);
+				return -EPROBE_DEFER;
+			}
+		}
+
+		it = NULL;
 		while ((it = of_get_next_available_child(user_gpios, it))) {
 			gpio_nr = of_get_gpio_flags(it, 0, &of_flags);
 
